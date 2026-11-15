@@ -1,0 +1,2 @@
+Get-Content app/*.py | Set-Clipboard - Zkopíruje obsah všech .py souborů ve složce app/ rovnou do schránky, pak dáš jen Ctrl+V, debug s chatem
+promenne co se nemeni velkymi pismeny (konfiguracni,...)
