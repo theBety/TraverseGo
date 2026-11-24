@@ -5,7 +5,7 @@ from pathlib import Path
 import gpxpy
 import gpxpy.geo
 
-from app.database import SessionLocal, engine
+from app.database import SessionLocal, engine, Base
 from app.models import Milestone, Trail
 
 GPX_FILE_PATH = Path(__file__).parent / "data" / "testKokorinsko.gpx"
@@ -15,14 +15,14 @@ def load_points_from_gpx(file_path: Path) -> list[tuple[float, float]]:
     with open(file_path, "r", encoding="utf-8") as gpx_file:
         gpx = gpxpy.parse(gpx_file)
         
-    points = list[tuple[float, float]] = []
+    points: list[tuple[float, float]] = []
     
     # Iterate through all tracks, segments, and points in the GPX file to extract latitude and longitude.
     # I have to do this, bcs this is how .gpx file is saved, it can have multiple tracks and segments, so I need to iterate through all of them to get all points.
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
-                points.append((point.latitude, point.longitude))\
+                points.append((point.latitude, point.longitude))
     
     # Some apps dont use the hiearchy of tracks and segments, so I need to check if there are any points in the routes
     if not points:
@@ -34,14 +34,14 @@ def load_points_from_gpx(file_path: Path) -> list[tuple[float, float]]:
     
 def haversine_distance(points: list[tuple[float, float]]) -> list[float]:
     # Calculate the Haversine distance between two points on the Earth specified by their latitude and longitude.
-    adding_km = []
-    for i in range(len(points)-1):
+    adding_km = [0.0]
+    for i in range(1, len(points)):
         prev_lat, prev_lng = points[i - 1]
         curr_lat, curr_lng = points[i]
         distance = gpxpy.geo.haversine_distance(prev_lat, prev_lng, curr_lat, curr_lng) / 1000  # Convert to kilometers
         adding_km.append(adding_km[-1] + distance)
         
-        return adding_km
+    return adding_km
 
 def seed_trail_database():
     # Database tables for testing
@@ -132,4 +132,4 @@ def seed_trail_database():
 
 
 if __name__ == "__main__":
-    seed_database()
+    seed_trail_database()
